@@ -9,6 +9,7 @@ public class Main {
     public static void main(String[] args) {
 //        LOG.info("Distance: {}", new DistanceCalculator().getDistance());
 //        LOG.info("Similarity Score: {}", new SimilarityCalculator().getSimilarity());
-        LOG.info("Safe Report count: {}", new SafeLevelCalculator().getNumberOfSafeReports());
+        LOG.info("Safe Report count: {}",
+                new SafeLevelCalculator().getNumberOfSafeReports());
     }
 }

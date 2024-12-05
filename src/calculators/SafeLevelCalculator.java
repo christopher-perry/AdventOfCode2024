@@ -18,9 +18,12 @@ public class SafeLevelCalculator {
         this(ReportParser.parseReport());
     }
 
+    public SafeLevelCalculator(String path) {
+        this(ReportParser.parseReport(path));
+    }
+
     public long getNumberOfSafeReports() {
         return reports.stream()
-                .peek(LOG::debug)
                 .filter(Report::isSafe)
                 .count();
     }
