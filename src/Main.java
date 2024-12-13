@@ -1,6 +1,7 @@
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import calculators.DistanceCalculator;
+import calculators.GuardPathCalculator;
 import calculators.MasXSearchCalculator;
 import calculators.MultSumCalculator;
 import calculators.PrintInstructionsCalculator;
@@ -17,6 +18,7 @@ public class Main {
 //        LOG.info("Multiplication sum: {}", new MultSumCalculator().getSumOfProducts());
 //        LOG.info("Number of times XMAS appears in puzzle: {}", new WordSearchCalculator().getCount());
 //        LOG.info("Number of times MAS appears in an x in puzzle: {}", new MasXSearchCalculator().getCount());
-        LOG.info("Count of middle update page numbsers: {}", new PrintInstructionsCalculator().countBadOnes());
+//        LOG.info("Count of middle update page numbers: {}", new PrintInstructionsCalculator().countBadOnes());
+        LOG.info("Number of visited map positions: {}", new GuardPathCalculator().countTilesVisited());
     }
 }
