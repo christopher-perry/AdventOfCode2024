@@ -22,6 +22,30 @@ class PrintInstructionsCalculator {
             .sumOf { update -> update[update.size / 2] }
     }
 
+    fun countBadOnes():Int {
+        return updates.filter { !satisfiesAllRules(it) }
+            .sumOf { update -> sortUpdate(update)[update.size / 2] }
+    }
+
+    // Dumb sort 'cause I can't be arsed
+    private fun sortUpdate(update: List<Int>):List<Int> {
+        val sortedUpdate = update.toMutableList()
+        update.forEachIndexed { index, num ->
+            val forbiddenNumbers = rules[num]
+            if (forbiddenNumbers != null) {
+                val newIndex = update.subList(0, index).indexOfFirst { forbiddenNumbers.contains(it) }
+                if (newIndex!= -1) {
+                    sortedUpdate.removeAt(index)
+                    sortedUpdate.add(newIndex, num)
+                }
+            }
+        }
+        if (!satisfiesAllRules(sortedUpdate)) {
+            return sortUpdate(sortedUpdate)
+        }
+        return sortedUpdate
+    }
+
     private fun satisfiesAllRules(update: List<Int>):Boolean {
         update.forEachIndexed { index, num ->
             val forbiddenNumbers = rules[num]

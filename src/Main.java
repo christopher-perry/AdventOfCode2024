@@ -17,6 +17,6 @@ public class Main {
 //        LOG.info("Multiplication sum: {}", new MultSumCalculator().getSumOfProducts());
 //        LOG.info("Number of times XMAS appears in puzzle: {}", new WordSearchCalculator().getCount());
 //        LOG.info("Number of times MAS appears in an x in puzzle: {}", new MasXSearchCalculator().getCount());
-        LOG.info("Count of middle update page numbsers: {}", new PrintInstructionsCalculator().getCount());
+        LOG.info("Count of middle update page numbsers: {}", new PrintInstructionsCalculator().countBadOnes());
     }
 }
