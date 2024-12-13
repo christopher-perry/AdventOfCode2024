@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ReportParser {
-    private final static String PATH = "resources/reports.txt";
+    private final static String PATH = "resources/input/reports.txt";
 
     public static List<Report> parseReport() {
         return parseReport(PATH);

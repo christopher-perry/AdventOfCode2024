@@ -12,7 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class InputParser {
-    private static final String PATH = "resources/input.txt";
+    private static final String PATH = "resources/input/input.txt";
     private static final Logger LOG = LogManager.getLogger(InputParser.class);
 
     public static List<String> parseInput(String path) {
