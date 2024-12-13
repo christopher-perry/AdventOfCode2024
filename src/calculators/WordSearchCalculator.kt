@@ -5,7 +5,7 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import parser.InputParser
 
-open class WordSearchCalculator @JvmOverloads constructor(path: String? = PATH) {
+open class WordSearchCalculator @JvmOverloads constructor(path: String = PATH) {
     companion object {
         const val PATH = "resources/input/wordsearch.txt"
 //        private const val PATH = "resources/input/wordsearch_example.txt"

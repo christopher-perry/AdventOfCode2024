@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger
 import parser.InputParser
 import kotlin.contracts.contract
 
-class MultSumCalculator @JvmOverloads constructor(path: String? = PATH) {
+class MultSumCalculator @JvmOverloads constructor(path: String = PATH) {
     private val validPairs: List<Pair<Int, Int>>
     private val products: List<Int>
 

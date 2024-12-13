@@ -1,67 +1,69 @@
-package parser;
+package parser
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
+import java.io.BufferedReader
+import java.io.FileReader
+import java.io.IOException
+import java.util.function.BiFunction
+import java.util.function.Consumer
 
-public class InputParser {
-    private static final String PATH = "resources/input/input.txt";
-    private static final Logger LOG = LogManager.getLogger(InputParser.class);
+object InputParser {
+    private const val PATH = "resources/input/input.txt"
+    private val LOG: Logger = LogManager.getLogger(InputParser::class.java)
 
-    public static List<String> parseInput(String path) {
-        List<String> result = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                result.add(line);
-                LOG.trace(line);
+    @JvmStatic
+    @JvmOverloads
+    fun parseInput(path: String = PATH): List<String> {
+        val result: MutableList<String> = ArrayList()
+        try {
+            BufferedReader(FileReader(path)).use { reader ->
+                var line: String
+                while ((reader.readLine().also { line = it }) != null) {
+                    result.add(line)
+                    LOG.trace(line)
+                }
             }
-        } catch (IOException ioe) {
-            LOG.error("Exception in reading file: ", ioe);
+        } catch (ioe: IOException) {
+            LOG.error("Exception in reading file: ", ioe)
         }
-        return result;
+        return result
     }
 
-    public static List<String> parseInput() {
-        return parseInput(PATH);
-    }
-
-    public static LeftRightList<Integer> getSortedLists() {
-        List<String> result = parseInput();
-        List<Integer> left = new ArrayList<>();
-        List<Integer> right = new ArrayList<>();
-        result.forEach(line -> {
-            String[] pair = line.split("\\s+");
-            left.add(Integer.valueOf(pair[0]));
-            right.add(Integer.valueOf(pair[1]));
-        });
-        return new LeftRightList<>(left.stream().sorted().toList(), right.stream().sorted().toList());
-    }
-
-    public static LeftRightFrequencyMap<Integer> getFrequencyMaps() {
-        List<String> result = parseInput();
-        Map<Integer, Integer> left = new HashMap<>();
-        Map<Integer, Integer> right = new HashMap<>();
-        result.forEach(line -> {
-            try {
-                String [] pair = line.split("\\s+");
-                Integer l = Integer.valueOf(pair[0]);
-                left.compute(l, incrementElseOne);
-                Integer r = Integer.valueOf(pair[1]);
-                right.compute(r, incrementElseOne);
-            } catch (NumberFormatException e) {
-                LOG.error("Line could not be parsed into integers: {}", line, e);
+    @JvmStatic
+    val sortedLists: LeftRightList<Int>
+        get() {
+            val result = parseInput()
+            val left: MutableList<Int> = ArrayList()
+            val right: MutableList<Int> = ArrayList()
+            result.forEach { line: String ->
+                val pair =
+                    line.split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                left.add(pair[0].toInt())
+                right.add(pair[1].toInt())
             }
-        });
-        return new LeftRightFrequencyMap<>(left, right);
-    }
+            return LeftRightList(left.stream().sorted().toList(), right.stream().sorted().toList())
+        }
 
-    private static BiFunction<Integer, Integer, Integer> incrementElseOne = (k, v) -> (v == null) ? 1 : v + 1;
+    @JvmStatic
+    val frequencyMaps: LeftRightFrequencyMap<Int>
+        get() {
+            val result = parseInput()
+            val left: MutableMap<Int, Int> = HashMap()
+            val right: MutableMap<Int, Int> = HashMap()
+            result.forEach { line: String ->
+                try {
+                    val pair = line.split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                    val l = pair[0].toInt()
+                    left.compute(l, incrementElseOne)
+                    val r = pair[1].toInt()
+                    right.compute(r, incrementElseOne)
+                } catch (e: NumberFormatException) {
+                    LOG.error("Line could not be parsed into integers: {}", line, e)
+                }
+            }
+            return LeftRightFrequencyMap(left, right)
+        }
+
+    private val incrementElseOne = BiFunction { k: Int?, v: Int? -> if (v == null) 1 else v + 1 }
 }
