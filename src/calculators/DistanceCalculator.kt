@@ -1,34 +1,31 @@
-package calculators;
+package calculators
 
-import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import parser.InputParser;
-import parser.LeftRightList;
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
+import parser.InputParser.sortedLists
+import parser.LeftRightList
+import kotlin.math.abs
 
-public class DistanceCalculator {
-    private static final Logger LOG = LogManager.getLogger(DistanceCalculator.class);
-    private final List<Integer> left;
-    private final List<Integer> right;
+class DistanceCalculator @JvmOverloads constructor(lists: LeftRightList<Int> = sortedLists) {
+    private val left: List<Int> = lists.left
+    private val right: List<Int> = lists.right
 
-    public DistanceCalculator(LeftRightList<Integer> lists) {
-        left = lists.getLeft();
-        right = lists.getRight();
-    }
-
-    public DistanceCalculator() {
-        this(InputParser.getSortedLists());
-    }
-
-    public int getDistance() {
-        int distance = 0;
-        for (int i = 0; i < left.size(); i++) {
-            int l = left.get(i);
-            int r = right.get(i);
-            int difference = Math.abs(l - r);
-            LOG.trace("{} {}: {}", l, r, distance);
-            distance += difference;
+    val distance: Int
+        get() {
+            var distance = 0
+            for (i in left.indices) {
+                val l = left[i]
+                val r = right[i]
+                val difference = abs((l - r).toDouble()).toInt()
+                LOG.trace("{} {}: {}", l, r, distance)
+                distance += difference
+            }
+            return distance
         }
-        return distance;
+
+    companion object {
+        private val LOG: Logger = LogManager.getLogger(
+            DistanceCalculator::class.java
+        )
     }
 }

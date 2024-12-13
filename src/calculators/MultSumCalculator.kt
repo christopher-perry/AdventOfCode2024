@@ -1,16 +1,21 @@
 package calculators
 
-import jdk.internal.net.http.common.Pair.pair
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import parser.InputParser
-import kotlin.contracts.contract
 
 class MultSumCalculator @JvmOverloads constructor(path: String = PATH) {
+    companion object {
+        private const val PATH = "resources/input/multiples.txt"
+        val multRegex = Regex("mul\\((\\d{1,3}),(\\d{1,3})\\)")
+        val doRegex = Regex("do\\(\\)")
+        val dontRegex = Regex("don't\\(\\)")
+    }
     private val validPairs: List<Pair<Int, Int>>
+
     private val products: List<Int>
 
-    private val logger: Logger = LogManager.getLogger(MultSumCalculator)
+    private val logger: Logger = LogManager.getLogger()
 
     init {
         val rawLines = InputParser.parseInput(path)
@@ -97,13 +102,6 @@ class MultSumCalculator @JvmOverloads constructor(path: String = PATH) {
         get() {
             return products.sum()
         }
-
-    companion object {
-        private const val PATH = "resources/input/multiples.txt"
-        val multRegex = Regex("mul\\((\\d{1,3}),(\\d{1,3})\\)")
-        val doRegex = Regex("do\\(\\)")
-        val dontRegex = Regex("don't\\(\\)")
-    }
 
     fun extract(line: String): Sequence<MatchResult> {
         return multRegex.findAll(line)

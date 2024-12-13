@@ -3,9 +3,9 @@ package calculators
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
-class MasXSearchCalculator @JvmOverloads constructor(path: String = PATH) : WordSearchCalculator(path) {
+class MasXSearchCalculator @JvmOverloads constructor(file: String = FILE) : WordSearchCalculator(file) {
     companion object {
-        const val PATH = "resources/input/wordsearch.txt"
+        const val FILE = "wordsearch.txt"
         private val LOGGER: Logger = LogManager.getLogger(WordSearchCalculator)
     }
     override val wordbank = listOf("MAS".toCharArray(), "SAM".toCharArray())

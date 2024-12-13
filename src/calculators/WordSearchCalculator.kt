@@ -1,21 +1,17 @@
 package calculators
 
-import com.sun.jndi.toolkit.dir.DirSearch.search
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 import parser.InputParser
 
-open class WordSearchCalculator @JvmOverloads constructor(path: String = PATH) {
+open class WordSearchCalculator @JvmOverloads constructor(file: String = FILE): Calculator(file) {
     companion object {
-        const val PATH = "resources/input/wordsearch.txt"
+        const val FILE = "wordsearch.txt"
 //        private const val PATH = "resources/input/wordsearch_example.txt"
     }
     open val wordbank = listOf("XMAS".toCharArray())
-    private val logger: Logger = LogManager.getLogger(WordSearchCalculator)
     protected val board:List<CharArray>
 
     init {
-        val rawLines = InputParser.parseInput(path)
+        val rawLines = InputParser.parseInput(file)
         board = rawLines.map { line -> line.toCharArray() }
         logger.debug("{} is the word\n, {}", wordbank, board.joinToString { s -> "${s.joinToString("")}\n" })
     }

@@ -1,12 +1,11 @@
 package calculators
 
 import org.apache.logging.log4j.LogManager
-import parser.InputParser
 
-class PrintInstructionsCalculator {
+class PrintInstructionsCalculator:Calculator(FILE) {
     companion object {
         private val Logger = LogManager.getLogger(PrintInstructionsCalculator)
-        private const val PATH = "resources/input/print_queue.txt"
+        private const val FILE = "print_queue.txt"
         private val printInstruction = Regex("(\\d+)\\|(\\d+)")
     }
 
@@ -14,7 +13,7 @@ class PrintInstructionsCalculator {
     private val updates:MutableList<List<Int>> = mutableListOf()
 
     init {
-        parsePrintOrdering(PATH)
+        parsePrintOrdering()
     }
 
     fun getCount():Int {
@@ -60,8 +59,8 @@ class PrintInstructionsCalculator {
         return true
     }
 
-    private fun parsePrintOrdering(path: String) {
-        InputParser.parseInput(path).forEach { line: String ->
+    private fun parsePrintOrdering() {
+        parseInput().forEach { line: String ->
             val match = printInstruction.find(line)
             if (match != null) {
                 val (key, value) = match.destructured
