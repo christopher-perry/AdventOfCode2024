@@ -1,34 +1,40 @@
 package calculators
 
-import jogamp.opengl.GLContextShareSet.printMap
+typealias IntPair = Pair<Int, Int>
 
 class GuardPathCalculator: Calculator(FILE) {
     companion object {
         private val FILE = "map.txt"
+        private val TRAVERSED_CHARS = setOf('-', '+', '|', 'O')
         // Get the traversal direction based on the guard token
         private val GUARD_MAPPER = mapOf('^' to (-1 to 0), '>' to (0 to 1),
             'v' to (1 to 0), '<' to (0 to -1))
+        private val DIRECTION_TO_GUARD_MAPPER = GUARD_MAPPER.map { entry -> entry.value to entry.key }.toMap()
     }
 
-    private val map:List<CharArray> = parseInput().map { it.toCharArray() }
+    private val map:MutableList<CharArray> = parseInput().map { it.toCharArray() }.toMutableList()
+    private val maxSize = map.size * map[0].size
+    private var possibleLoops = 0
 
     fun countTilesVisited():Int {
-        printMap()
+        printMap(map)
         val (initialPosition, direction) = findInitialPositionAndDirection()
         navigateMap(initialPosition, direction)
-        return sumAllXTiles()
+        logger.info("Possible infinite loops: {}", possibleLoops)
+        logger.info("Total O's :{}", map.sumOf { chars -> chars.count {char -> char == 'O' } })
+        return sumAllTraversedTiles()
     }
 
-    private fun sumAllXTiles(): Int {
+    private fun sumAllTraversedTiles(): Int {
         return map.sumOf { chars ->
-            chars.count { char -> 'X' == char }
+            chars.count { char -> char in TRAVERSED_CHARS }
         }
     }
 
-    private fun findInitialPositionAndDirection():Pair<Pair<Int, Int>, Pair<Int,Int>> {
+    private fun findInitialPositionAndDirection():Pair<IntPair, IntPair> {
         map.forEachIndexed { row, spaces ->
             spaces.forEachIndexed { column, char ->
-                val direction: Pair<Int, Int>? = GUARD_MAPPER[char]
+                val direction: IntPair? = GUARD_MAPPER[char]
                 if (direction != null) {
                     return row to column to direction
                 }
@@ -37,49 +43,111 @@ class GuardPathCalculator: Calculator(FILE) {
         throw IllegalStateException("No guard token found in map!")
     }
 
-    private fun navigateMap(position:Pair<Int,Int>, direction:Pair<Int, Int>): Pair<Int, Int> {
-        var guard = map[position.first][position.second]
+    private fun navigateMap(position:IntPair, direction:IntPair, previousToken:Char? = null): IntPair {
+        var guard = DIRECTION_TO_GUARD_MAPPER[direction]!!
         var nextDirection = direction
         val newPosition = position + direction
 
         // As soon as the guard leaves, terminate; we're done
         if (guardHasLeft(newPosition)) {
-            map[position.first][position.second] = 'X'
+            travelOver(position, nextDirection, map[position])
             return -1 to -1
         }
 
         // If we are about to hit an obstacle, simply rotate to the next direction. Then move.
-        if (map[newPosition.first][newPosition.second] == '#') {
+        if (map[newPosition] == '#') {
             guard = getNextGuardToken(guard)
-            map[position.first][position.second] = guard
             nextDirection = GUARD_MAPPER[guard]!!
-            return navigateMap(position, nextDirection)
+            return navigateMap(position, nextDirection, '+')
         }
 
-        // If we've made it this far, nextDirection is a valid move and we're going straight
-        map[position.first][position.second] = 'X'
-        map[newPosition.first][newPosition.second] = guard
-        printMap()
-        return navigateMap(newPosition, direction)
+        val loop = if(previousToken != null) checkIfAnObstacleCanCauseALoop(map, newPosition, nextDirection) else 0
+        possibleLoops += loop
+        // If we've made it this far, nextDirection is a valid move and we're going straight.
+        // mark currentPosition based on its previous token (because currently it is guard)
+        travelOver(position, nextDirection, previousToken)
+        val nextToken = if (loop > 0) 'O' else map[newPosition]
+        map[newPosition] = guard
+        printMap(map)
+        return navigateMap(newPosition, nextDirection, nextToken)
     }
 
-    private fun guardHasLeft(position: Pair<Int, Int>): Boolean {
+    /**
+     * Look at what would happen if we dropped an obstacle at the new position.
+     * If we would then proceed forward to another obstacle, then another, then another at the same column as
+     * newPosition, we can create an infinite loop.  Increment the counter.
+     */
+    private fun checkIfAnObstacleCanCauseALoop(displayMap:List<CharArray>, startingPoint: IntPair, nextDirection: IntPair): Int {
+        var tempCursor = startingPoint
+        var direction = nextDirection
+        var obstacle = startingPoint + direction
+        var timesCollided = 0 // track how many obstacles we hit so we can stop if we can't return back to our starting point
+        // Initial "Collision" to the obstacle we plop down
+        direction = getNextDirection(direction)
+        while (true) {
+            val nextPosition = tempCursor + direction
+            if (nextPosition == startingPoint) {
+                return 1
+            }
+            if (guardHasLeft(nextPosition)) {
+                return 0
+            }
+            if (map[nextPosition] == '#' || nextPosition == obstacle) {
+                timesCollided ++
+                direction = getNextDirection(direction)
+            } else {
+                tempCursor = nextPosition
+            }
+            if (timesCollided > 100) {
+                return 0
+            }
+        }
+    }
+
+    // Replace the tile at the given position with the token determined by the given direction
+    private fun travelOver(position: IntPair, direction: IntPair, currentToken: Char ?= ' ') {
+        var newToken = if (direction.first != 0) '|' else '-'
+        if (currentToken == '+' || setOf('|', '-').containsAll(setOf(newToken, currentToken))) {
+            newToken = '+'
+        }
+        if (currentToken == 'O') {
+            newToken = 'O'
+        }
+        map[position] = newToken
+    }
+
+    private fun guardHasLeft(position: IntPair): Boolean {
         return !(position.first in 0..map.size - 1 && position.second in 0 .. map[position.first].size - 1)
     }
 
-    operator fun Pair<Int, Int>.plus(other: Pair<Int, Int>): Pair<Int, Int> {
+    operator fun IntPair.plus(other: IntPair): IntPair {
         return this.first + other.first to this.second + other.second
     }
 
-    fun getNextGuardToken(currentGuardToken: Char): Char {
+    operator fun MutableList<CharArray>.get(position: IntPair): Char {
+        return this[position.first][position.second]
+    }
+
+    operator fun MutableList<CharArray>.set(position: IntPair, value:Char) {
+        this[position.first][position.second] = value
+    }
+
+    private fun getNextGuardToken(currentGuardToken: Char): Char {
         val keys = GUARD_MAPPER.keys.toList()
         val currentIndex = keys.indexOf(currentGuardToken)
         val nextIndex = (currentIndex + 1) % keys.size
         return keys[nextIndex]
     }
 
-    fun printMap() {
-        logger.info("\n{}", map.joinToString(separator = "\n") { String(it) })
+    private fun getNextDirection(direction: IntPair): IntPair {
+        val directions = DIRECTION_TO_GUARD_MAPPER.keys.toList()
+        val currentIndex = directions.indexOf(direction)
+        val nextIndex = (currentIndex + 1) % directions.size
+        return directions[nextIndex]
+    }
+
+    private fun printMap(displayMap: List<CharArray>) {
+        logger.info("\n{}", displayMap.joinToString(separator = "\n") { String(it) })
     }
 
 }
