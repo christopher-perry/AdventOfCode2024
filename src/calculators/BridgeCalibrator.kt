@@ -6,7 +6,8 @@ class BridgeCalibrator: Calculator(FILE) {
         const val FILE = "bridge.txt"
         val OPERATIONS = setOf<(LongPair) -> Long> (
             { l -> sum(l) },
-            { l -> mult(l) }
+            { l -> mult(l) },
+            { l -> concat(l) }
         )
     }
     private val equations:List<String> = parseInput()
@@ -57,6 +58,10 @@ private fun sum(numbers: Pair<Long, Long>):Long {
 
 private fun mult(numbers: Pair<Long, Long>):Long {
     return numbers.first * numbers.second
+}
+
+private fun concat(numbers: Pair<Long, Long>):Long {
+    return (numbers.first.toString() + numbers.second.toString()).toLong()
 }
 
 fun main() {
