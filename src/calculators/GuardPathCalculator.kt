@@ -1,8 +1,6 @@
 package calculators
 
-typealias IntPair = Pair<Int, Int>
-
-class GuardPathCalculator: Calculator(FILE) {
+class GuardPathCalculator: MapCalculator(FILE) {
     companion object {
         private val FILE = "map.txt"
         private val TRAVERSED_CHARS = setOf('-', '+', '|', 'O')
@@ -12,7 +10,6 @@ class GuardPathCalculator: Calculator(FILE) {
         private val DIRECTION_TO_GUARD_MAPPER = GUARD_MAPPER.map { entry -> entry.value to entry.key }.toMap()
     }
 
-    private val map:MutableList<CharArray> = parseInput().map { it.toCharArray() }.toMutableList()
     private val maxSize = map.size * map[0].size
     private var possibleLoops = 0
 
@@ -120,18 +117,6 @@ class GuardPathCalculator: Calculator(FILE) {
         return !(position.first in 0..map.size - 1 && position.second in 0 .. map[position.first].size - 1)
     }
 
-    operator fun IntPair.plus(other: IntPair): IntPair {
-        return this.first + other.first to this.second + other.second
-    }
-
-    operator fun MutableList<CharArray>.get(position: IntPair): Char {
-        return this[position.first][position.second]
-    }
-
-    operator fun MutableList<CharArray>.set(position: IntPair, value:Char) {
-        this[position.first][position.second] = value
-    }
-
     private fun getNextGuardToken(currentGuardToken: Char): Char {
         val keys = GUARD_MAPPER.keys.toList()
         val currentIndex = keys.indexOf(currentGuardToken)
@@ -145,9 +130,4 @@ class GuardPathCalculator: Calculator(FILE) {
         val nextIndex = (currentIndex + 1) % directions.size
         return directions[nextIndex]
     }
-
-    private fun printMap(displayMap: List<CharArray>) {
-        logger.info("\n{}", displayMap.joinToString(separator = "\n") { String(it) })
-    }
-
 }
