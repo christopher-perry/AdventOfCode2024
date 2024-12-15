@@ -1,5 +1,7 @@
 package calculators
 
+import calculators.BridgeCalibrator.Companion.OPERATIONS
+
 typealias LongPair = Pair<Long, Long>
 class BridgeCalibrator: Calculator(FILE) {
     companion object {
@@ -12,11 +14,7 @@ class BridgeCalibrator: Calculator(FILE) {
     }
     private val equations:List<String> = parseInput()
 
-    fun calculateCalibrations():Long {
-        return equations.sumOf {
-            parseEquation(it)
-        }
-    }
+    fun calculateCalibrations() = equations.sumOf { parseEquation(it) }
 
     private fun parseEquation(equation:String):Long {
         val (t, p) = equation.split(": ")
@@ -52,17 +50,11 @@ class BridgeCalibrator: Calculator(FILE) {
     }
 }
 
-private fun sum(numbers: Pair<Long, Long>):Long {
-    return numbers.first + numbers.second
-}
+private fun sum(numbers: Pair<Long, Long>) = numbers.first + numbers.second
 
-private fun mult(numbers: Pair<Long, Long>):Long {
-    return numbers.first * numbers.second
-}
+private fun mult(numbers: Pair<Long, Long>) = numbers.first * numbers.second
 
-private fun concat(numbers: Pair<Long, Long>):Long {
-    return (numbers.first.toString() + numbers.second.toString()).toLong()
-}
+private fun concat(numbers: Pair<Long, Long>) = (numbers.first.toString() + numbers.second.toString()).toLong()
 
 fun main() {
     println(BridgeCalibrator().calculateCalibrations())
