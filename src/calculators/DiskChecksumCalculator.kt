@@ -50,6 +50,7 @@ open class DataFile (val id:Int, fileSize: Int, cursor: Int) {
 class EmptySpace(fileSize: Int, cursor: Int):DataFile (-1, fileSize, cursor) {
     override fun checksum(): Long = 0
     override fun toString() = "EmptySpace(${indices.joinToString(", ")})"
+    fun canFit(file: DataFile) = indices.size >= file.indices.size
 }
 
 const val FILE = "files.txt"
@@ -92,9 +93,17 @@ class DiskChecksumCalculator: Calculator(FILE) {
         }
     }
 
+    private fun defragFiles() {
+        fileList.reversed().forEach { file ->
+            emptiesList.find { it.canFit(file) }?.let {
+                file.fillIndices(it)
+            }
+        }
+    }
+
     fun calculateCheckSum(): Long {
         parseDiskFiles()
-        reorderFiles()
+        defragFiles()
         val sum = fileList.sumOf { it.checksum() }
         println(fileList.joinToString("\n"))
         return sum
