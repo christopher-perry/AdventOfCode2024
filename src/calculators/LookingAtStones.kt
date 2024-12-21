@@ -5,39 +5,35 @@ class StoneCalculator : Calculator(FILE) {
         const val FILE = "stones.txt"
     }
 
-    private var stones: MutableList<Stone> = parseInput()[0].split(" ")
-        .map { num -> Stone(num.toLong()) }.toMutableList()
+    private var stones: MutableMap<Long, Long> = parseInput()[0].split(" ")
+        .associate { it.toLong() to 1L }.toMutableMap()
 
-    fun calculateBlinks(blinks: Int): Int {
+    fun calculateBlinks(blinks: Int): Long {
         repeat(blinks) { blink() }
-        return stones.size
+        return stones.values.sum()
     }
 
     private fun blink() {
-        stones = stones.flatMap { it.transform() }.toMutableList()
-    }
-
-}
-
-data class Stone(var number:Long) {
-    fun transform(): MutableList<Stone> {
-        if (number == 0L) {
-            number = 1
-            return mutableListOf(this)
+        val newStones: MutableMap<Long, Long> = mutableMapOf()
+        stones.forEach { (number, numberOfStones) ->
+            if (number == 0L) {
+                newStones.merge(1, numberOfStones)  { a, b -> a + b }
+            } else {
+                val str = number.toString()
+                val digits = str.length
+                if (digits % 2 == 0) {
+                    val half = digits / 2
+                    newStones.merge(str.substring(0, half).toLong(), numberOfStones) { a, b -> a + b }
+                    newStones.merge(str.substring(half).toLong(), numberOfStones) { a, b -> a + b }
+                } else {
+                    newStones.merge(number * 2024, numberOfStones)  { a, b -> a + b }
+                }
+            }
         }
-        val str = number.toString()
-        val digits = str.length
-        if (digits % 2 == 0) {
-            val half = digits / 2
-            number = str.substring(0, half).toLong()
-            return mutableListOf(this, Stone(str.substring(half).toLong()))
-        }
-        number *= 2024
-        return mutableListOf(this)
+        stones = newStones
     }
 }
-
 
 fun main() {
-    println(StoneCalculator().calculateBlinks(25))
+    println(StoneCalculator().calculateBlinks(75))
 }
