@@ -1,6 +1,13 @@
 package calculators
 
 typealias Matrix<T> = List<MutableList<T>>
+data class TreeNode<T>(val value: T, val children: MutableList<TreeNode<T>> = mutableListOf()) {
+    fun getLeafNodes():List<T> {
+        if (children.isEmpty()) return mutableListOf(value)
+
+        return children.flatMap { it.getLeafNodes() }
+    }
+}
 
 val ALL_DIRECTIONS = setOf(IntPair(0, 1), IntPair(1, 0), IntPair(0, -1), IntPair(-1, 0)) // > v < ^
 
@@ -28,12 +35,7 @@ fun <T> Matrix<T>.findCoordinates(predicate: (T) -> Boolean): List<IntPair> {
 }
 
 fun <T> Matrix<T>.seekUniqueCoordinates(pattern: List<T>, coordinates:IntPair): Set<IntPair> {
-    if (pattern.isEmpty()) return emptySet()
-    if (!this.onBoard(coordinates)) {
-        return emptySet()
-    }
-
-    if (pattern[0] != this[coordinates]) {
+    if (pattern.isEmpty() || !this.onBoard(coordinates) || pattern[0] != this[coordinates]) {
         return emptySet()
     }
 
@@ -46,11 +48,22 @@ fun <T> Matrix<T>.seekUniqueCoordinates(pattern: List<T>, coordinates:IntPair): 
     return setOf(coordinates)
 }
 
-fun <T> Matrix<T>.seek(pattern:List<T>, coordinates: IntPair, direction: IntPair): Boolean {
-    if (this.onBoard(coordinates)) {
-        return false
+fun <T> Matrix<T>.seekAllPathsTo(pattern: List<T>, coordinates: IntPair): TreeNode<Pair<T, IntPair>>? {
+    if (pattern.isEmpty() || !this.onBoard(coordinates) || pattern[0] != this[coordinates]) {
+        return null
     }
-    if (pattern[0] != this[coordinates]) {
+
+    val node = TreeNode(this[coordinates] to coordinates)
+    if (pattern.size > 1) {
+        ALL_DIRECTIONS.forEach { direction ->
+            seekAllPathsTo(pattern.subList(1, pattern.size), coordinates + direction)?.let { node.children.add(it) }
+        }
+    }
+    return node
+}
+
+fun <T> Matrix<T>.seek(pattern:List<T>, coordinates: IntPair, direction: IntPair): Boolean {
+    if (this.onBoard(coordinates) || pattern.isEmpty() || pattern[0] != this[coordinates]) {
         return false
     }
 
