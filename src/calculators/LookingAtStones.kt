@@ -13,9 +13,8 @@ class StoneCalculator : Calculator(FILE) {
         return stones.size
     }
 
-    fun blink() {
+    private fun blink() {
         stones = stones.flatMap { it.transform() }.toMutableList()
-        println(stones)
     }
 
 }
