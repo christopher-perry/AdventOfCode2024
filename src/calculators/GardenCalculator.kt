@@ -83,8 +83,7 @@ data class Region(val plant: Char, var coordinates: MutableList<IntPair>) {
                     val dirSet = directionsToNeighbors.getOrPut(direction) { mutableListOf() }
                     dirSet.add(test)
                     val prevEdge = test + direction.perpendicularCheck()
-                    val removed = dirSet.remove(prevEdge)
-                    if (removed) println(prevEdge)
+                    dirSet.remove(prevEdge)
                 }
             }
         }
