@@ -1,6 +1,7 @@
 package calculators
 
 typealias Matrix<T> = List<MutableList<T>>
+typealias Direction = IntPair
 data class TreeNode<T>(val value: T, val children: MutableList<TreeNode<T>> = mutableListOf()) {
     fun getLeafNodes():List<T> {
         if (children.isEmpty()) return mutableListOf(value)
@@ -9,7 +10,21 @@ data class TreeNode<T>(val value: T, val children: MutableList<TreeNode<T>> = mu
     }
 }
 
-val ALL_DIRECTIONS = setOf(IntPair(0, 1), IntPair(1, 0), IntPair(0, -1), IntPair(-1, 0)) // > v < ^
+val EAST = IntPair(0, 1)
+val SOUTH = IntPair(1, 0)
+val WEST = IntPair(0, -1)
+val NORTH = IntPair(-1, 0)
+
+fun Direction.perpendicularDirections() : Set<Direction> {
+    return if (this.first != 0) setOf(EAST, WEST) else setOf(SOUTH, NORTH)
+}
+
+// Needed to check if the previous coordinate for this edge was in a map.
+fun Direction.perpendicularCheck() : Direction {
+    return if (this.first != 0) WEST else NORTH
+}
+
+val ALL_DIRECTIONS = listOf(EAST, SOUTH, WEST, NORTH) // > v < ^
 
 private fun <T> Matrix<T>.onBoard(coordinates: Pair<Int, Int>) =
     coordinates.first in indices && coordinates.second in this[coordinates.first].indices
