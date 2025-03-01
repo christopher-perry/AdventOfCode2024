@@ -9,17 +9,13 @@ data class ClawMachine(
     val prize: IntPair
 ) {
 
-    data class ButtonCombo(val buttonAPresses: Int, val buttonBPresses: Int) {
+    data class ButtonCombo(val buttonAPresses: Long, val buttonBPresses: Long) {
         fun cost() = A_COST * buttonAPresses + B_COST * buttonBPresses
     }
 
-    val winningCombinations = mutableSetOf<ButtonCombo>()
+    var winningCombinations = mutableSetOf<ButtonCombo>()
 
-    init {
-        calculateWinningCombos()
-    }
-
-    private fun calculateWinningCombos() {
+    fun calculateWinningCombos() {
         val maxBPresses : Int = min((prize / buttonB))
         for (bPresses in maxBPresses.downTo(0)) {
             val bValue = buttonB * bPresses
@@ -29,7 +25,7 @@ data class ClawMachine(
                 val aPresses = (target / buttonA)
                 // If the remainder (x,y) is not ==, it is not evenly divisible, no winning # presses here.
                 if (aPresses.first == aPresses.second) {
-                    winningCombinations.add(ButtonCombo(aPresses.first, bPresses))
+                    winningCombinations.add(ButtonCombo(aPresses.first.toLong(), bPresses.toLong()))
                 }
             }
         }
@@ -38,7 +34,7 @@ data class ClawMachine(
     fun cheapestCombo() = winningCombinations.minOfOrNull { it.cost() } ?: 0
 }
 
-class ClawMachineReader : Calculator(FILE) {
+open class ClawMachineReader : Calculator(FILE) {
     companion object {
         val FILE = "claw.txt"
     }
@@ -91,6 +87,9 @@ class ClawMachineReader : Calculator(FILE) {
 
 fun main() {
     val clawMachines = ClawMachineReader().parseClawMachines()
-    clawMachines.forEach { println("$it: ${it.winningCombinations}") }
+    clawMachines.forEach {
+        it.calculateWinningCombos()
+        println("$it: ${it.winningCombinations}")
+    }
     println(clawMachines.sumOf { it.cheapestCombo() })
 }
